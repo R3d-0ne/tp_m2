@@ -2,7 +2,7 @@ from hdfs import InsecureClient
 import pandas as pd
 
 # Configuration du client HDFS
-HDFS_HOST = 'http://namenode:9870'  # URL de NameNode
+HDFS_HOST = 'http://localhost:9870'  # URL de NameNode
 HDFS_USER = 'root'  # Nom de l'utilisateur HDFS
 
 # Initialisation du client HDFS
@@ -11,7 +11,7 @@ client = InsecureClient(HDFS_HOST, user=HDFS_USER)
 # Dictionnaire des chemins de fichiers
 files_to_upload = {
     'data/CO2.csv': '/data_lake/raw/CO2/CO2.csv',
-    'data/Clients_18.csv': '/data_lake/raw/clients/Clients_18.csv',
+    'data/Clients_0.csv': '/data_lake/raw/clients/Clients_0.csv',
     'data/Immatriculations.csv': '/data_lake/raw/immatriculations/Immatriculations.csv',
     'data/Marketing.csv': '/data_lake/raw/marketing/Marketing.csv'
 }
@@ -26,7 +26,7 @@ def upload_file_to_hdfs(local_path, hdfs_path):
         else:
             print(f"Le fichier {hdfs_path} existe déjà sur HDFS.")
     except Exception as e:
-        print(f"Erreur lors du téléchargement du fichier {local_path} : {e}")
+        print(f"Erreur lors du téléchargement du fichier {local_path} : {e}")   
 
 def read_and_display_csv(hdfs_path):
     """Lecture d'un fichier CSV depuis HDFS et affichage des données."""

@@ -14,4 +14,4 @@ hdfs dfs -put /app/data/clients.csv /data_lake/raw/clients/
 hdfs dfs -put /app/data/immatriculations.csv /data_lake/raw/immatriculations/
 hdfs dfs -put /app/data/marketing.csv /data_lake/raw/marketing/
 
-echo "Initialisation HDFS terminée avec succès."
+echo "Initialisation HDFS terminée avec succès."    

@@ -9,8 +9,6 @@ services:
       - "9870:9870"  # UI Web du NameNode
       - "9000:9000"  # Port RPC du NameNode
     volumes:
-      - ./data:/app/data  # Monte le dossier data
-      - ./scripts/init_hdfs.sh:/init_hdfs.sh  # Monte le script d'initialisation
       - hadoop_namenode:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=test
@@ -55,21 +53,39 @@ services:
     volumes:
       - mongo_data:/data/db  # Persistance des données MongoDB
 
-  python-app:
-    image: python:3.10
-    container_name: python-app
+  oracle-nosql:
+    image: ghcr.io/oracle/nosql:latest-ce
+    container_name: oracle-nosql
+    restart: always
+    environment:
+        - KVSTORE=kvstore
+        - HOSTNAME=oracle-nosql
+        - HA_HOSTNAME=oracle-nosql
+    ports:
+        - 8080:8080
     volumes:
-      - ./app:/app  # Monte le dossier contenant le code source
-      - ./data:/app/data
-    working_dir: /app
-    command: ["sh", "-c", "pip install -r requirements.txt && python main.py"]  # Exécute le script principal
+        - oracle_nosql_data:/data
+
+  hive:
+    image: apache/hive:2.3.2-postgresql-metastore
+    container_name: hive
+    restart: always
     depends_on:
       - namenode
-      - mongo  # Corrige le nom pour correspondre au conteneur MongoDB
+      - datanode
+      - resourcemanager
+      - metastore-db
+    environment:
+      HIVE_METASTORE_DB_HOST: metastore-db
+      HIVE_METASTORE_DB_PORT: 3306
+      HIVE_METASTORE_DB_NAME: metastore
+      HIVE_METASTORE_DB_USER: hive
+      HIVE_METASTORE_DB_PASSWORD: hivepassword
     ports:
-      - "8888:8888"  # Port pour Jupyter Notebook si besoin
+      - "10000:10000"  # Port pour le HiveServer2
 
 volumes:
   hadoop_namenode:
   hadoop_datanode:
   mongo_data:  # Volume pour la persistance des données MongoDB
+  oracle_nosql_data:
