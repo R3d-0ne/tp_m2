@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    restart: always
+    ports:
+      - "9870:9870"  # UI Web du NameNode
+      - "9000:9000"  # Port RPC du NameNode
+    volumes:
+      - ./data:/app/data  # Monte le dossier data
+      - ./scripts/init_hdfs.sh:/init_hdfs.sh  # Monte le script d'initialisation
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - ./hadoop.env
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    restart: always
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+    env_file:
+      - ./hadoop.env
+
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    container_name: resourcemanager
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
+    env_file:
+      - ./hadoop.env
+
+  nodemanager:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+    env_file:
+      - ./hadoop.env
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"  # Port par défaut pour MongoDB
+    volumes:
+      - mongo_data:/data/db  # Persistance des données MongoDB
+
+  python-app:
+    image: python:3.10
+    container_name: python-app
+    volumes:
+      - ./app:/app  # Monte le dossier contenant le code source
+      - ./data:/app/data
+    working_dir: /app
+    command: ["sh", "-c", "pip install -r requirements.txt && python main.py"]  # Exécute le script principal
+    depends_on:
+      - namenode
+      - mongo  # Corrige le nom pour correspondre au conteneur MongoDB
+    ports:
+      - "8888:8888"  # Port pour Jupyter Notebook si besoin
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
+  mongo_data:  # Volume pour la persistance des données MongoDB
