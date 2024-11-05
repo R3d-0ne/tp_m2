@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 # Déclaration du réseau commun pour tous les services
 networks:
@@ -12,13 +12,13 @@ services:
     container_name: namenode
     restart: always
     ports:
-      - "50070:50070"  # Port de l'interface Web du NameNode
+      - "50070:50070" # Port de l'interface Web du NameNode
     volumes:
-      - namenode:/hadoop/dfs/name  # Volume pour la persistance des données du NameNode
+      - namenode:/hadoop/dfs/name # Volume pour la persistance des données du NameNode
     environment:
       - CLUSTER_NAME=test
     env_file:
-      - ./hadoop-hive.env  # Fichier d'environnement pour les variables personnalisées
+      - ./hadoop-hive.env # Fichier d'environnement pour les variables personnalisées
     networks:
       - hadoop_network
 
@@ -28,11 +28,11 @@ services:
     container_name: datanode
     restart: always
     ports:
-      - "50075:50075"  # Port de l'interface Web du DataNode
+      - "50075:50075" # Port de l'interface Web du DataNode
     volumes:
-      - datanode:/hadoop/dfs/data  # Volume pour la persistance des données du DataNode
+      - datanode:/hadoop/dfs/data # Volume pour la persistance des données du DataNode
     environment:
-      SERVICE_PRECONDITION: "namenode:50070"  # Assure que le NameNode est actif avant le lancement du DataNode
+      SERVICE_PRECONDITION: "namenode:50070" # Assure que le NameNode est actif avant le lancement du DataNode
     env_file:
       - ./hadoop-hive.env
     networks:
@@ -47,9 +47,9 @@ services:
     restart: always
     environment:
       HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-      SERVICE_PRECONDITION: "hive-metastore:9083"  # Vérifie la disponibilité du metastore avant le démarrage
+      SERVICE_PRECONDITION: "hive-metastore:9083" # Vérifie la disponibilité du metastore avant le démarrage
     ports:
-      - "10000:10000"  # Port JDBC de HiveServer2 pour les connexions SQL
+      - "10000:10000" # Port JDBC de HiveServer2 pour les connexions SQL
     env_file:
       - ./hadoop-hive.env
     networks:
@@ -62,11 +62,11 @@ services:
     image: bde2020/hive:2.3.2-postgresql-metastore
     container_name: hive-metastore
     restart: always
-    command: /opt/hive/bin/hive --service metastore  # Lance le service de métastore
+    command: /opt/hive/bin/hive --service metastore # Lance le service de métastore
     environment:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075 hive-metastore-postgresql:5432"
     ports:
-      - "9083:9083"  # Port pour accéder au métastore
+      - "9083:9083" # Port pour accéder au métastore
     env_file:
       - ./hadoop-hive.env
     networks:
@@ -82,7 +82,7 @@ services:
     container_name: hive-metastore-postgresql
     restart: always
     ports:
-      - "5432:5432"  # Port par défaut de PostgreSQL
+      - "5432:5432" # Port par défaut de PostgreSQL
     networks:
       - hadoop_network
 
@@ -92,7 +92,7 @@ services:
     container_name: presto-coordinator
     restart: always
     ports:
-      - "8080:8080"  # Port pour l'interface Web et les requêtes de Presto
+      - "8080:8080" # Port pour l'interface Web et les requêtes de Presto
     networks:
       - hadoop_network
 
@@ -102,9 +102,9 @@ services:
     container_name: mongo
     restart: always
     ports:
-      - "27017:27017"  # Port par défaut pour MongoDB
+      - "27017:27017" # Port par défaut pour MongoDB
     volumes:
-      - mongo_data:/data/db  # Volume pour la persistance des données MongoDB
+      - mongo_data:/data/db # Volume pour la persistance des données MongoDB
     networks:
       - hadoop_network
 
