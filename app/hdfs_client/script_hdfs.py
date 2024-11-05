@@ -1,8 +1,8 @@
-from hdfs import InsecureClient
 import pandas as pd
+from hdfs import InsecureClient
 
 # Configuration du client HDFS
-HDFS_HOST = 'http://localhost:9870'  # URL de NameNode
+HDFS_HOST = 'http://namenode:50070'
 HDFS_USER = 'root'  # Nom de l'utilisateur HDFS
 
 # Initialisation du client HDFS
@@ -10,7 +10,7 @@ client = InsecureClient(HDFS_HOST, user=HDFS_USER)
 
 # Dictionnaire des chemins de fichiers
 files_to_upload = {
-    'data/CO2.csv': '/data_lake/raw/CO2/CO2.csv',
+    'data/Clients_0.csv': '/data_lake/raw/Clients/Clients_0.csv',
 }
 
 def upload_file_to_hdfs(local_path, hdfs_path):
@@ -45,4 +45,3 @@ def main():
     # Lecture et affichage des fichiers
     for _, hdfs_file in files_to_upload.items():
         read_and_display_csv(hdfs_file)
-
