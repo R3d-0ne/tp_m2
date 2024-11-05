@@ -8,6 +8,7 @@ services:
     ports:
       - "9870:9870"  # UI Web du NameNode
       - "9000:9000"  # Port RPC du NameNode
+      - "8020:8020"
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
     environment:
@@ -66,26 +67,48 @@ services:
     volumes:
         - oracle_nosql_data:/data
 
-  hive:
-    image: apache/hive:2.3.2-postgresql-metastore
-    container_name: hive
+  hive-metastore-db:
+    image: postgres:latest
+    container_name: hive-metastore-db
     restart: always
-    depends_on:
-      - namenode
-      - datanode
-      - resourcemanager
-      - metastore-db
     environment:
-      HIVE_METASTORE_DB_HOST: metastore-db
-      HIVE_METASTORE_DB_PORT: 3306
+      POSTGRES_DB: metastore
+      POSTGRES_USER: hive
+      POSTGRES_PASSWORD: hivepassword
+    volumes:
+      - hive_metastore_db_data:/var/lib/postgresql/data
+
+  hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-metastore
+    restart: always
+    environment:
+      HIVE_METASTORE_DB_HOST: hive-metastore-db
       HIVE_METASTORE_DB_NAME: metastore
       HIVE_METASTORE_DB_USER: hive
       HIVE_METASTORE_DB_PASSWORD: hivepassword
+    depends_on:
+      - hive-metastore-db
     ports:
-      - "10000:10000"  # Port pour le HiveServer2
+      - 9083:9083
+
+  hive-server:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-server
+    restart: always
+    environment:
+      HIVE_METASTORE_URI: "thrift://hive-metastore:9083"
+      HADOOP_CONF_DIR: "/opt/hive/conf"
+      HADOOP_FS_DEFAULTFS: "hdfs://namenode:8020"
+    depends_on:
+      - hive-metastore
+    ports:
+      - 10000:10000  # Port pour HiveServer2 (JDBC)
 
 volumes:
   hadoop_namenode:
   hadoop_datanode:
-  mongo_data:  # Volume pour la persistance des données MongoDB
+  mongo_data:
   oracle_nosql_data:
+  hive_metastore_db_data:
+
