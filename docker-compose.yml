@@ -102,7 +102,7 @@ services:
     container_name: mongo
     restart: always
     ports:
-      - "27017:27017" # Port par défaut pour MongoDB
+      - "27016:27017" # Port par défaut pour MongoDB
     volumes:
       - mongo_data:/data/db # Volume pour la persistance des données MongoDB
     networks:
